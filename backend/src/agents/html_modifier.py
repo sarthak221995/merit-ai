@@ -17,7 +17,8 @@ class HtmlModifier:
         )
         
         # GPT-4o is recommended for large HTML manipulation tasks
-        self.model_name = "gpt-3.5-turbo"
+        # self.model_name = "gpt-3.5-turbo"
+        self.model_name = "gpt-4.1"
 
         # System prompt stored as class attribute
         self.system_prompt = """

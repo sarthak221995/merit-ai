@@ -1,0 +1,40 @@
+services:
+  # --- Backend Service ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: merit-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CLERK_JWKS_URL=${CLERK_JWKS_URL}
+      # FIX: Pydantic expects a JSON array for lists, not a plain string
+      - CORS_ORIGINS=["http://localhost:3000"]
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - merit-network
+
+  # --- Frontend Service ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:8000
+        - REACT_APP_CLERK_PUBLISHABLE_KEY=${REACT_APP_CLERK_PUBLISHABLE_KEY}
+        - REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}
+        - REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}
+    container_name: merit-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - merit-network
+
+networks:
+  merit-network:
+    driver: bridge
