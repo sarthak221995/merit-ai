@@ -3,7 +3,7 @@ services:
     name: resumegpt-backend
     env: docker
     region: oregon
-    plan: starter
+    plan: free
     rootDir: backend
     envVars:
       - key: PORT
