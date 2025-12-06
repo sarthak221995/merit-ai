@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useSession } from '@clerk/clerk-react';
 import { Check, Sparkles, Search, Filter, Loader2 } from 'lucide-react';
 
 // This component handles the visual template selection
 export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }) {
+  const { session } = useSession();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,13 +13,24 @@ export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }
 
   // Fetch available templates from backend
   useEffect(() => {
-    fetchTemplates();
-  }, []);
+    if (session) {
+      fetchTemplates();
+    }
+  }, [session]);
 
   const fetchTemplates = async () => {
     try {
+      const token = await session.getToken();
       // Call your backend endpoint that lists all templates
-      const response = await fetch('http://localhost:8000/list-templates');
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const response = await fetch(`${backendUrl}/templates`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch");
+
       const data = await response.json();
       setTemplates(data.templates);
     } catch (error) {
@@ -91,7 +104,7 @@ export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.description.toLowerCase().includes(searchTerm.toLowerCase());
+      template.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || template.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -157,8 +170,8 @@ export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }
             className={`
               group relative cursor-pointer rounded-xl border-2 overflow-hidden
               transition-all duration-300 hover:shadow-2xl hover:-translate-y-1
-              ${selectedTemplateId === template.id 
-                ? 'border-brand-600 ring-2 ring-brand-600 shadow-xl' 
+              ${selectedTemplateId === template.id
+                ? 'border-brand-600 ring-2 ring-brand-600 shadow-xl'
                 : 'border-gray-200 hover:border-brand-400'
               }
             `}
@@ -185,7 +198,7 @@ export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }
                     <div className="h-1.5 bg-slate-200 rounded w-4/6"></div>
                   </div>
                 </div>
-                
+
                 {/* When you have actual thumbnails, use this instead:
                 <img 
                   src={template.thumbnailUrl} 
@@ -207,11 +220,11 @@ export default function TemplateLibrary({ onSelectTemplate, selectedTemplateId }
             <div className="p-4 bg-white">
               <h3 className="font-bold text-slate-900 mb-1">{template.name}</h3>
               <p className="text-sm text-slate-500 mb-2">{template.description}</p>
-              
+
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5">
                 {template.tags.slice(0, 3).map(tag => (
-                  <span 
+                  <span
                     key={tag}
                     className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full"
                   >

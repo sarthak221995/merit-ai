@@ -3,21 +3,17 @@ name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
-    "agent-framework>=1.0.0b251112.post1",
-    "agent-framework-azure-ai>=1.0.0b251112.post1",
     "aiofiles>=25.1.0",
-    "azure-ai-agents>=1.1.0",
+    "openai>=1.0.0",
     "azure-identity>=1.25.1",
     "docx2pdf>=0.1.8",
     "fastapi>=0.121.2",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
-    "mcp-inspector>=0.1.0",
-    "mcp[cli]>=1.21.1",
     "pdf2image>=1.17.0",
-    "pydantic-settings>=2.12.0",
+    "pydantic-settings>=2.0.0",
     "pyjwt>=2.10.1",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.20",

@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
+// import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn } from './MockClerk';
 
 // --- Import Your Components ---
 import LandingPage from './LandingPage';
-import Dashboard from './Dashboard'; 
-import Editor from './Editor';       
+import Dashboard from './Dashboard';
+import Editor from './Editor';
 
 // --- Clerk Configuration ---
 // Make sure this is set in your .env file
@@ -18,10 +19,10 @@ function App() {
         <Routes>
           {/* 1. PUBLIC ROUTE: The Landing Page (Root URL) */}
           <Route path="/" element={<LandingPage />} />
-          
+
           {/* 2. PROTECTED ROUTE: Dashboard */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <>
                 <SignedIn>
@@ -31,12 +32,12 @@ function App() {
                   <RedirectToSignIn />
                 </SignedOut>
               </>
-            } 
+            }
           />
 
           {/* 3. PROTECTED ROUTE: Editor */}
-          <Route 
-            path="/editor/:id" 
+          <Route
+            path="/editor/:id"
             element={
               <>
                 <SignedIn>
@@ -46,7 +47,7 @@ function App() {
                   <RedirectToSignIn />
                 </SignedOut>
               </>
-            } 
+            }
           />
 
           {/* 4. Clerk Auth Routes (Redirects) */}

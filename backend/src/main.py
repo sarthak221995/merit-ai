@@ -13,8 +13,25 @@ import jwt
 from jwt import PyJWKClient
 from pathlib import Path
 from io import BytesIO # <--- ADDED for in-memory file conversion
-from weasyprint import HTML
-from weasyprint.text.fonts import FontConfiguration
+# --- GTK3 Setup for Windows ---
+# Try to add GTK3 to PATH if on Windows (required for WeasyPrint)
+gtk3_path = r"C:\Program Files\GTK3-Runtime Win64\bin"
+if os.path.exists(gtk3_path) and gtk3_path not in os.environ['PATH']:
+    os.environ['PATH'] = gtk3_path + os.pathsep + os.environ['PATH']
+
+try:
+    from weasyprint import HTML
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+except OSError as e:
+    logger.warning(f"WeasyPrint not available: {e}")
+    WEASYPRINT_AVAILABLE = False
+    class HTML:
+        def __init__(self, string=None, **kwargs): pass
+        def write_pdf(self, target=None, font_config=None): raise NotImplementedError("WeasyPrint not available")
+    class FontConfiguration:
+        pass
+
 
 # --- Internal Imports ---
 from .config import settings

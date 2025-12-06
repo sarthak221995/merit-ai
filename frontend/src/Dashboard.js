@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, UserButton, useSession } from '@clerk/clerk-react';
+// import { useUser, UserButton, useSession } from './MockClerk';
 import { createClient } from '@supabase/supabase-js';
 import {
   Plus, Clock, Command, Loader2, FileText, History, Trash2
@@ -13,7 +14,7 @@ const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { session } = useSession(); 
+  const { session } = useSession();
   const [resumes, setResumes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
@@ -24,18 +25,25 @@ export default function Dashboard() {
 
   // Helper to create authenticated client
   const getAuthenticatedSupabase = async () => {
-    const token = await session.getToken({ template: 'supabase' });
-
-    return createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    });
+    try {
+      const token = await session.getToken({ template: 'supabase' });
+      return createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      });
+    } catch (e) {
+      console.warn("Failed to get 'supabase' token template. Implementation Note: You need to create a JWT template named 'supabase' in Clerk Dashboard. Falling back to standard token (RLS might fail).");
+      const token = await session.getToken();
+      return createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      });
+    }
   };
 
   const fetchResumes = async () => {
     setIsLoading(true);
     try {
       const supabase = await getAuthenticatedSupabase();
-      
+
       const { data, error } = await supabase
         .from('resumes')
         .select('*')
@@ -88,7 +96,7 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure? This cannot be undone.")) return;
 
     setDeletingId(resumeId);
-    
+
     try {
       const supabase = await getAuthenticatedSupabase();
       const { error } = await supabase.from('resumes').delete().eq('id', resumeId);
@@ -121,7 +129,7 @@ export default function Dashboard() {
             </div>
             <span className="font-bold text-lg tracking-tight">Merit</span>
           </div>
-          
+
           {/* --- LAUNCH BADGE --- */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide">
             <span className="relative flex h-2 w-2">
